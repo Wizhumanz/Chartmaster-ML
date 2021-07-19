@@ -25,5 +25,5 @@ def modelName(request):
 
 @api_view(['POST'])
 def sendInput(request):
-    return Response(ml.setPredictvalue(request.data["ema1"], request.data["ema2"], request.data["ema3"], request.data["ema4"]))
+    return Response(ml.setPredictvalue(request.data["ema1"], request.data["ema2"], request.data["ema3"], request.data["ema4"], request.data["diff"], request.data["days"], request.data["months"]))
     # return Response(request.data)

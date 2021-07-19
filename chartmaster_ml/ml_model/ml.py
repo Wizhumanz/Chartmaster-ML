@@ -9,22 +9,32 @@ from sklearn.model_selection import train_test_split
 # from xgboost import XGBRegressor
 from sklearn.multioutput import RegressorChain
 from sklearn.multioutput import MultiOutputRegressor
+from sklearn.preprocessing import OrdinalEncoder
 
 df = pd.read_csv('/Users/simonjeong/Desktop/TradingData.csv')
 # df.head()
 
 # y = df['PivotLows']
 y = df[['PivotLows', 'MaxDuration', 'SlPerc', 'SlCooldown', 'TpSingle']]
-x = df[['EMA1','EMA2','EMA3','EMA4']]
+x = df[['Slope_EMA1','Slope_EMA2','Slope_EMA3','Slope_EMA4','Distance_Btwn_Emas','DayOfWeek', 'Month']]
 
 # print(x, y)
 train_X, val_X, train_y, val_y = train_test_split(x, y, random_state = 0)
+label_X_train = train_X.copy()
+label_X_valid = val_X.copy()
+
+object_cols = ['DayOfWeek', 'Month']
+ordinal_encoder = OrdinalEncoder()
+label_X_train[object_cols] = ordinal_encoder.fit_transform(train_X[object_cols])
 
 model = RandomForestRegressor()
-model.fit(train_X, train_y)
+model.fit(label_X_train, train_y)
 
-def setPredictvalue(ema1, ema2, ema3, ema4):
-    val_X = [[ema1, ema2, ema3, ema4]]
+def setPredictvalue(ema1, ema2, ema3, ema4, diff, days, months):
+    # label_X_valid[object_cols] = 
+    # print(ordinal_encoder.transform([[days, months]]))
+    val_X = [[ema1, ema2, ema3, ema4, diff, *ordinal_encoder.transform([[days, months]])[0]]]
+    print(val_X)
     y_pred = model.predict(val_X)
     return y_pred[0]
 
