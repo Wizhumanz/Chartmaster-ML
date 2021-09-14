@@ -11,39 +11,44 @@ from sklearn.multioutput import RegressorChain
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.preprocessing import OrdinalEncoder
 
-df = pd.read_csv('/Users/simonjeong/Desktop/TradingData.csv')
-# df.head()
+df = pd.read_csv('/Users/simonjeong/Desktop/2020-05-01_00_00_00_2021-06-30_00_00_00(1MIN, BINANCEFTS_PERP_BTC_USDT)1.csv')
+# df1 = pd.read_csv('/Users/simonjeong/Desktop/TradingData2.csv')
+
+df= pd.concat([df]).drop_duplicates(keep='last')
 
 # y = df['PivotLows']
 y = df[['PivotLows', 'MaxDuration', 'SlPerc', 'SlCooldown', 'TpSingle']]
-x = df[['Slope_EMA1','Slope_EMA2','Slope_EMA3','Slope_EMA4','Distance_Btwn_Emas','DayOfWeek', 'Month']]
+x = df[['Slope_Volume1','Slope_Volume2','Slope_Volume3','Volatility','VolumeIndex','Time','DayOfWeek','Month']]
 
 # print(x, y)
 train_X, val_X, train_y, val_y = train_test_split(x, y, random_state = 0)
-label_X_train = train_X.copy()
-label_X_valid = val_X.copy()
 
-object_cols = ['DayOfWeek', 'Month']
-ordinal_encoder = OrdinalEncoder()
-label_X_train[object_cols] = ordinal_encoder.fit_transform(train_X[object_cols])
+# # Categorical Encoding
+# label_X_train = train_X.copy()
+# label_X_valid = val_X.copy()
+# val_X = [[volume1, volume2, volume3, volume4, diff, *ordinal_encoder.transform([[days, 'March']])[0]]]
+
+# object_cols = ['DayOfWeek', 'Month']
+# ordinal_encoder = OrdinalEncoder()
+# label_X_train[object_cols] = ordinal_encoder.fit_transform(train_X[object_cols])
 
 model = RandomForestRegressor()
-model.fit(label_X_train, train_y)
+model.fit(train_X, train_y)
 
-def setPredictvalue(ema1, ema2, ema3, ema4, diff, days, months):
+
+def setPredictvalue(volume1, volume2, volume3, volatility, volumeIndex, time, days, months):
     # label_X_valid[object_cols] = 
     # print(ordinal_encoder.transform([[days, months]]))
-    val_X = [[ema1, ema2, ema3, ema4, diff, *ordinal_encoder.transform([[days, months]])[0]]]
-    print(val_X)
+    val_X = [[volume1, volume2, volume3, volatility, volumeIndex, time, days, months]]
     y_pred = model.predict(val_X)
     return y_pred[0]
 
 
 # {
-# "ema1" : 45957.8191963809,
-# "ema2" : 46120.7766334909,
-# "ema3" : 46244.93240234,
-# "ema4" : 46297.619363374
+# "volume1" : 45957.8191963809,
+# "volume2" : 46120.7766334909,
+# "volume3" : 46244.93240234,
+# "volume4" : 46297.619363374
 # }
 # print(y_pred)
 
